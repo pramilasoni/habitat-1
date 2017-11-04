@@ -1,25 +1,22 @@
-p Connecting to the PostgreSQL database from a Node.js app requires setting the database adapter value, user name, password, and host. To do this, you will need to create an <code>init</code> hook that will attempt to connect to any database you bind to. 
- 
+p Connecting to the PostgreSQL database from a Node.js app requires setting the database adapter value, user name, password, and host. To do this, you will need to create an <code>init</code> hook that will attempt to connect to any database you bind to.
+
  p In the <code>habitat</code> directory inside your project repo, edit the <code>default.toml</code> to set the correct database connection information. [VERIFY]
 
- pre
-  code
+= code(:toml, title: 'habitat/default.toml') do
    |
     [db]
     user = "admin"
     password = "admin"
 
- p By default, the Node.js scaffolding sets the <code>NODE_ENV</code> #{link_to 'environment variable','/tutorials/build-your-own/define-variables/'} to 'production'. If you want to override this value, add the following to your <code>default.toml</code>: 
+ p By default, the Node.js scaffolding sets the <code>NODE_ENV</code> #{link_to 'environment variable','/tutorials/build-your-own/define-variables/'} to 'production'. If you want to override this value, add the following to your <code>default.toml</code>:
 
- pre
-  code
+ = code(:toml) do
    |
     node_env = "development|test"
 
  p Also, by default, because <code>NODE_ENV</code> is set to 'production', the database name that the scaffolding will try to connect to will be named <i>package_</i>production. If you want to override that value, add the following in the <code>db</code> TOML table: [VERIFY]
 
- pre
-  code 
+ = code(:toml) do
    |
     name = "databasename"
 

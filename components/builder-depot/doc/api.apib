@@ -3,11 +3,10 @@ FORMAT: 1A
 # Group Origins
 
 ## Origin [/v1/depot/origins/{name}]
-An origin is a place to stash all your artifacts.
+Origins are rad.
 
 + Parameters
-  + name (string)
-    The name of the origin to fetch
+  + name: `lulz` (string)
 
 + Attributes (object)
   + id: 123456 (string, required)
@@ -16,33 +15,25 @@ An origin is a place to stash all your artifacts.
   + private_key_name: haha (string)
   + default_package_visibility: public (string)
 
+### Retrieve an Origin [GET]
 
-### Retrieve an origin [GET]
++ Request (application/json)
 
 + Response 200 (application/json)
   + Attributes (Origin)
 
-## Origin [/v1/depot/origins]
+## Origins [/v1/depot/origins]
 
-### Create an origin [POST]
+### Create an Origin [POST]
+
++ Attributes (object)
+  + name: awesomefuntimes (string, required)
 
 + Request (application/json)
+  + Headers
 
-  {"name":"awesomefuntimes"}
+      Accept: application/json
+      Authorization: Bearer hahano
 
 + Response 201 (application/json)
-  + Attributes (object)
-    + id: 123456 (string, required)
-    + name: awesomefuntimes (string, required)
-    + owner_id: 456789 (string)
-    + private_key_name: haha (string)
-    + default_package_visibility: public (string)
-  + Body
-    {
-      "id":"845143747200041064",
-      "name":"lulz",
-      "owner_id":"810238516922425438",
-      "private_key_name":"",
-      "default_package_visibility":"public"
-    }
-
+  + Attributes (Origin)

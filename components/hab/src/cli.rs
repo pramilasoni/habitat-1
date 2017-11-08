@@ -18,6 +18,7 @@ use std::str::FromStr;
 
 use clap::{App, AppSettings, Arg};
 use hcore::crypto::keys::PairType;
+use sup;
 use regex::Regex;
 use url::Url;
 
@@ -426,12 +427,7 @@ pub fn get() -> App<'static, 'static> {
                     service will be stopped.")
                 (@setting Hidden)
             )
-            (@subcommand start =>
-                (about: "Start a loaded, but stopped, Habitat service or a transient service from \
-                    a package or artifact. If the Habitat Supervisor is not already running this \
-                    will additionally start one for you.")
-                (@setting Hidden)
-            )
+            (subcommand: sup::cli::start())
             (@subcommand stop =>
                 (about: "Stop a running Habitat service.")
                 (@setting Hidden)

@@ -21,6 +21,7 @@ extern crate env_logger;
 extern crate hab;
 extern crate habitat_core as hcore;
 extern crate habitat_common as common;
+extern crate habitat_sup as sup;
 extern crate handlebars;
 #[macro_use]
 extern crate lazy_static;
@@ -192,9 +193,12 @@ fn start(ui: &mut UI) -> Result<()> {
                 ("key", Some(m)) => {
                     match m.subcommand() {
                         ("generate", Some(sc)) => sub_service_key_generate(ui, sc)?,
-                        _ => unreachable!(),
+                        _ => unreachable!()
                     }
                 }
+                ("start", _) => {
+                    command::launcher::start(ui, env::args_os().skip(2).collect())?
+                },
                 _ => unreachable!(),
             }
         }
@@ -683,7 +687,6 @@ fn exec_subcommand_if_called(ui: &mut UI) -> Result<()> {
         ("sup", _, _) => command::sup::start(ui, env::args_os().skip(2).collect()),
         ("start", _, _) => command::launcher::start(ui, env::args_os().skip(1).collect()),
         ("stop", _, _) => command::sup::start(ui, env::args_os().skip(1).collect()),
-        ("svc", "start", _) => command::launcher::start(ui, env::args_os().skip(2).collect()),
         ("svc", "load", _) |
         ("svc", "unload", _) |
         ("svc", "status", _) |

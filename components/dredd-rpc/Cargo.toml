@@ -1,0 +1,9 @@
+[package]
+name = "dredd-rpc"
+version = "0.0.0"
+authors = ["Josh Black <raskchanky@gmail.com>"]
+workspace = "../../"
+description = "Used for running tests with Dredd"
+
+[dependencies]
+dredd-hooks = "*"

@@ -23,6 +23,7 @@ members = [
   "components/butterfly-test",
   "components/common",
   "components/core",
+  "components/dredd-rpc",
   "components/eventsrv",
   "components/eventsrv-client",
   "components/eventsrv-protocol",

@@ -10,7 +10,57 @@ use config::GossipListenAddr;
 use http_gateway::ListenAddr;
 use manager::service::{Topology, UpdateStrategy};
 
+#[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
+pub fn load<'a, 'b>() -> App<'a, 'b> {
+    let base = clap_app!(@subcommand load =>
+        (about: "Load a service to be started and supervised by Habitat from a package or \
+            artifact. Services started in this manner will persist through Supervisor \
+            restarts.")
+        (aliases: &["lo", "loa"])
+        (@arg PKG_IDENT_OR_ARTIFACT: +required +takes_value
+            "A Habitat package identifier (ex: core/redis) or filepath to a Habitat Artifact \
+            (ex: /home/core-redis-3.0.7-21120102031201-x86_64-linux.hart)")
+        (@arg NAME: --("override-name") +takes_value
+            "The name for the state directory if there is more than one Supervisor running \
+            [default: default]")
+        (@arg APPLICATION: --application -a +takes_value requires[ENVIRONMENT]
+            "Application name; [default: not set].")
+        (@arg ENVIRONMENT: --environment -e +takes_value requires[APPLICATION]
+            "Environment name; [default: not set].")
+        (@arg CHANNEL: --channel +takes_value
+            "Receive package updates from the specified release channel [default: stable]")
+        (@arg GROUP: --group +takes_value
+            "The service group; shared config and topology [default: default].")
+        (@arg BLDR_URL: --url -u +takes_value {valid_url}
+            "Receive package updates from Builder at the specified URL \
+            [default: https://bldr.habitat.sh]")
+        (@arg TOPOLOGY: --topology -t +takes_value {valid_topology}
+            "Service topology; [default: none]")
+        (@arg STRATEGY: --strategy -s +takes_value {valid_update_strategy}
+            "The update strategy; [default: none] [values: none, at-once, rolling]")
+        (@arg BIND: --bind +takes_value +multiple
+            "One or more service groups to bind to a configuration")
+        (@arg FORCE: --force -f "Load or reload an already loaded service. If the service was \
+            previously loaded and running this operation will also restart the service")
+    );
 
+    maybe_add_password_arg(base)
+}
+
+pub fn unload<'a, 'b>() -> App<'a, 'b> {
+    clap_app!(@subcommand unload =>
+        (about: "Unload a persistent or transient service started by the Habitat \
+            Supervisor. If the Supervisor is running when the service is unloaded the \
+            service will be stopped.")
+        (aliases: &["un", "unl", "unlo", "unloa"])
+        (@arg PKG_IDENT: +required +takes_value "A Habitat package identifier (ex: core/redis)")
+        (@arg NAME: --("override-name") +takes_value
+            "The name for the state directory if there is more than one Supervisor running \
+            [default: default]")
+    )
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
 pub fn start<'a, 'b>() -> App<'a, 'b> {
     let base = clap_app!(@subcommand start =>
         (about: "Start a loaded, but stopped, Habitat service or a transient service from \
@@ -62,15 +112,39 @@ pub fn start<'a, 'b>() -> App<'a, 'b> {
             group running a Habitat EventSrv to forward Supervisor and service event data to")
     );
 
-    if cfg!(any(target_os = "linux", target_os = "macos")) {
-        base
-    } else if cfg!(target_os = "windows") {
+    maybe_add_password_arg(base)
+}
+
+pub fn status<'a, 'b>() -> App<'a, 'b> {
+    clap_app!(@subcommand status =>
+        (about: "Query the status of Habitat services.")
+        (aliases: &["stat", "statu", "status"])
+        (@arg PKG_IDENT: +takes_value "A Habitat package identifier (ex: core/redis)")
+        (@arg NAME: --("override-name") +takes_value
+            "The name for the state directory if there is more than one Supervisor running \
+            [default: default]")
+    )
+}
+
+pub fn stop<'a, 'b>() -> App<'a, 'b> {
+    clap_app!(@subcommand stop =>
+        (about: "Stop a running Habitat service.")
+        (aliases: &["sto"])
+        (@arg PKG_IDENT: +required +takes_value "A Habitat package identifier (ex: core/redis)")
+        (@arg NAME: --("override-name") +takes_value
+            "The name for the state directory if there is more than one Supervisor running \
+            [default: default]")
+    )
+}
+
+fn maybe_add_password_arg<'a, 'b>(base: App<'a, 'b>) -> App<'a, 'b> {
+    if cfg!(target_os = "windows") {
         base.arg(Arg::with_name("PASSWORD")
             .long("password")
             .takes_value(true)
             .help("Password of the service user"))
     } else {
-        unreachable!()
+        base
     }
 }
 

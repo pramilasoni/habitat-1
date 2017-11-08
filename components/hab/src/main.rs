@@ -196,9 +196,11 @@ fn start(ui: &mut UI) -> Result<()> {
                         _ => unreachable!()
                     }
                 }
-                ("start", _) => {
-                    command::launcher::start(ui, env::args_os().skip(2).collect())?
-                },
+                ("start", _) => command::launcher::start(ui, env::args_os().skip(2).collect())?,
+                ("load", _) |
+                ("unload", _) |
+                ("status", _) |
+                ("stop", _) => command::sup::start(ui, env::args_os().skip(2).collect())?,
                 _ => unreachable!(),
             }
         }
@@ -687,10 +689,6 @@ fn exec_subcommand_if_called(ui: &mut UI) -> Result<()> {
         ("sup", _, _) => command::sup::start(ui, env::args_os().skip(2).collect()),
         ("start", _, _) => command::launcher::start(ui, env::args_os().skip(1).collect()),
         ("stop", _, _) => command::sup::start(ui, env::args_os().skip(1).collect()),
-        ("svc", "load", _) |
-        ("svc", "unload", _) |
-        ("svc", "status", _) |
-        ("svc", "stop", _) => command::sup::start(ui, env::args_os().skip(2).collect()),
         ("term", _, _) => command::sup::start(ui, env::args_os().skip(1).collect()),
         _ => Ok(()),
     }

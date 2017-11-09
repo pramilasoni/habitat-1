@@ -195,7 +195,9 @@ fn start(ui: &mut UI) -> Result<()> {
         ("sup", Some(matches)) => {
             match matches.subcommand() {
                 ("run", Some(_)) |
-                ("start", Some(_)) => command::launcher::start(ui, env::args_os().skip(2).collect())?,
+                ("start", Some(_)) => {
+                    command::launcher::start(ui, env::args_os().skip(2).collect())?
+                }
                 _ => command::sup::start(ui, env::args_os().skip(2).collect())?,
             }
         }
@@ -208,10 +210,9 @@ fn start(ui: &mut UI) -> Result<()> {
                     }
                 }
                 ("start", _) => command::launcher::start(ui, env::args_os().skip(2).collect())?,
-                ("load", _) |
-                ("unload", _) |
-                ("status", _) |
-                ("stop", _) => command::sup::start(ui, env::args_os().skip(2).collect())?,
+                ("load", _) | ("unload", _) | ("status", _) | ("stop", _) => {
+                    command::sup::start(ui, env::args_os().skip(2).collect())?
+                }
                 _ => unreachable!(),
             }
         }

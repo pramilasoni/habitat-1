@@ -28,7 +28,8 @@ use super::VERSION;
 
 #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
 pub fn get<'a, 'b>(command_name: &'static str) -> App<'a, 'b> {
-    let base = clap_app!((command_name) =>
+    let base =
+        clap_app!((command_name) =>
         (about: "The Habitat Supervisor")
         (version: VERSION)
         (author: "\nAuthors: The Habitat Maintainers <humans@habitat.sh>\n")
@@ -111,7 +112,7 @@ pub fn unload<'a, 'b>() -> App<'a, 'b> {
     )
 }
 
-pub fn run<'a, 'b>(aka: &'static[&'static str]) -> App<'a, 'b> {
+pub fn run<'a, 'b>(aka: &'static [&'static str]) -> App<'a, 'b> {
     clap_app!(@subcommand run =>
         (about: "Run the Habitat Supervisor")
         (aliases: aka)
@@ -237,10 +238,12 @@ pub fn maybe_add_term_subcommand<'a, 'b>(base: App<'a, 'b>) -> App<'a, 'b> {
 
 fn maybe_add_password_arg<'a, 'b>(base: App<'a, 'b>) -> App<'a, 'b> {
     if cfg!(target_os = "windows") {
-        base.arg(Arg::with_name("PASSWORD")
-            .long("password")
-            .takes_value(true)
-            .help("Password of the service user"))
+        base.arg(
+            Arg::with_name("PASSWORD")
+                .long("password")
+                .takes_value(true)
+                .help("Password of the service user"),
+        )
     } else {
         base
     }
@@ -274,14 +277,18 @@ fn valid_topology(val: String) -> result::Result<(), String> {
 fn valid_listen_gossip(val: String) -> result::Result<(), String> {
     match GossipListenAddr::from_str(&val) {
         Ok(_) => Ok(()),
-        Err(_) => Err(format!("Listen gossip address should include both IP and port, eg: '0.0.0.0:9700'"))
+        Err(_) => Err(format!(
+            "Listen gossip address should include both IP and port, eg: '0.0.0.0:9700'"
+        )),
     }
 }
 
 fn valid_listen_http(val: String) -> result::Result<(), String> {
     match ListenAddr::from_str(&val) {
         Ok(_) => Ok(()),
-        Err(_) => Err(format!("Listen http address should include both IP and port, eg: '0.0.0.0:9700'"))
+        Err(_) => Err(format!(
+            "Listen http address should include both IP and port, eg: '0.0.0.0:9700'"
+        )),
     }
 }
 

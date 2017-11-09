@@ -10,6 +10,43 @@ use config::GossipListenAddr;
 use http_gateway::ListenAddr;
 use manager::service::{Topology, UpdateStrategy};
 
+use super::VERSION;
+
+#[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
+pub fn get<'a, 'b>(command_name: &'static str) -> App<'a, 'b> {
+    let base = clap_app!((command_name) =>
+        (about: "The Habitat Supervisor")
+        (version: VERSION)
+        (author: "\nAuthors: The Habitat Maintainers <humans@habitat.sh>\n")
+        (@setting VersionlessSubcommands)
+        (@setting SubcommandRequiredElseHelp)
+        (@arg VERBOSE: -v +global "Verbose output; shows line numbers")
+        (@arg NO_COLOR: --("no-color") +global "Turn ANSI color off")
+        (@subcommand bash =>
+            (about: "Start an interactive Bash-like shell")
+            (aliases: &["b", "ba", "bas"])
+        )
+        (@subcommand config =>
+            (about: "Displays the default configuration options for a service")
+            (aliases: &["c", "co", "con", "conf", "confi"])
+            (@arg PKG_IDENT: +required +takes_value
+                "A package identifier (ex: core/redis, core/busybox-static/1.42.2)")
+        )
+        (subcommand: load())
+        (subcommand: unload())
+        (subcommand: run(&["r", "ru"]))
+        (@subcommand sh =>
+            (about: "Start an interactive Bourne-like shell")
+            (aliases: &[])
+        )
+        (subcommand: start())
+        (subcommand: status())
+        (subcommand: stop())
+    );
+
+    maybe_add_term_subcommand(base)
+}
+
 #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
 pub fn load<'a, 'b>() -> App<'a, 'b> {
     let base = clap_app!(@subcommand load =>
@@ -57,6 +94,39 @@ pub fn unload<'a, 'b>() -> App<'a, 'b> {
         (@arg NAME: --("override-name") +takes_value
             "The name for the state directory if there is more than one Supervisor running \
             [default: default]")
+    )
+}
+
+pub fn run<'a, 'b>(aka: &'static[&'static str]) -> App<'a, 'b> {
+    clap_app!(@subcommand run =>
+        (about: "Run the Habitat Supervisor")
+        (aliases: aka)
+        // (aliases: &["r", "ru"])
+        (@arg LISTEN_GOSSIP: --("listen-gossip") +takes_value {valid_listen_gossip}
+            "The listen address for the gossip system [default: 0.0.0.0:9638]")
+        (@arg LISTEN_HTTP: --("listen-http") +takes_value {valid_listen_http}
+            "The listen address for the HTTP gateway [default: 0.0.0.0:9631]")
+        (@arg NAME: --("override-name") +takes_value
+            "The name of the Supervisor if launching more than one [default: default]")
+        (@arg ORGANIZATION: --org +takes_value
+            "The organization that the Supervisor and it's subsequent services are part of \
+            [default: default]")
+        (@arg PEER: --peer +takes_value +multiple
+            "The listen address of an initial peer (IP[:PORT])")
+        (@arg PERMANENT_PEER: --("permanent-peer") -I "If this Supervisor is a permanent peer")
+        (@arg PEER_WATCH_FILE: --("peer-watch-file") +takes_value conflicts_with[peer]
+            "Watch this file for connecting to the ring"
+        )
+        (@arg RING: --ring -r +takes_value "Ring key name")
+        (@arg CHANNEL: --channel +takes_value
+            "Receive Supervisor updates from the specified release channel [default: stable]")
+        (@arg BLDR_URL: --url -u +takes_value {valid_url}
+            "Receive Supervisor updates from Builder at the specified URL \
+            [default: https://bldr.habitat.sh]")
+        (@arg AUTO_UPDATE: --("auto-update") -A "Enable automatic updates for the Supervisor \
+            itself")
+        (@arg EVENTS: --events -n +takes_value {valid_service_group} "Name of the service \
+            group running a Habitat EventSrv to forward Supervisor and service event data to")
     )
 }
 
@@ -135,6 +205,20 @@ pub fn stop<'a, 'b>() -> App<'a, 'b> {
             "The name for the state directory if there is more than one Supervisor running \
             [default: default]")
     )
+}
+
+pub fn maybe_add_term_subcommand<'a, 'b>(base: App<'a, 'b>) -> App<'a, 'b> {
+    if cfg!(any(target_os = "linux", target_os = "macos")) {
+        base.subcommand(
+            clap_app!(("term") =>
+                (about: "Gracefully terminate the Habitat Supervisor and all of it's running services")
+                (@arg NAME: --("override-name") +takes_value
+                    "The name of the Supervisor if more than one is running [default: default]")
+            )
+        )
+    } else {
+        base
+    }
 }
 
 fn maybe_add_password_arg<'a, 'b>(base: App<'a, 'b>) -> App<'a, 'b> {

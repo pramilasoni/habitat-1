@@ -188,6 +188,17 @@ fn start(ui: &mut UI) -> Result<()> {
                 _ => unreachable!(),
             }
         }
+        ("run", Some(_)) => command::launcher::start(ui, env::args_os().skip(1).collect())?,
+        ("start", Some(_)) => command::launcher::start(ui, env::args_os().skip(1).collect())?,
+        ("stop", Some(_)) |
+        ("term", Some(_)) => command::sup::start(ui, env::args_os().skip(1).collect())?,
+        ("sup", Some(matches)) => {
+            match matches.subcommand() {
+                ("run", Some(_)) |
+                ("start", Some(_)) => command::launcher::start(ui, env::args_os().skip(2).collect())?,
+                _ => command::sup::start(ui, env::args_os().skip(2).collect())?,
+            }
+        }
         ("svc", Some(matches)) => {
             match matches.subcommand() {
                 ("key", Some(m)) => {
@@ -680,16 +691,9 @@ fn exec_subcommand_if_called(ui: &mut UI) -> Result<()> {
         ("pkg", "export", "cf") => {
             command::pkg::export::cf::start(ui, env::args_os().skip(4).collect())
         }
-        ("run", _, _) => command::launcher::start(ui, env::args_os().skip(1).collect()),
         ("stu", _, _) | ("stud", _, _) | ("studi", _, _) | ("studio", _, _) => {
             command::studio::enter::start(ui, env::args_os().skip(2).collect())
         }
-        ("sup", "run", _) |
-        ("sup", "start", _) => command::launcher::start(ui, env::args_os().skip(2).collect()),
-        ("sup", _, _) => command::sup::start(ui, env::args_os().skip(2).collect()),
-        ("start", _, _) => command::launcher::start(ui, env::args_os().skip(1).collect()),
-        ("stop", _, _) => command::sup::start(ui, env::args_os().skip(1).collect()),
-        ("term", _, _) => command::sup::start(ui, env::args_os().skip(1).collect()),
         _ => Ok(()),
     }
 }

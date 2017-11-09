@@ -5,6 +5,8 @@ base_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 # First make sure that we have services already compiled to test.
 pushd ../../
+
+# TODO JB: uncomment these 2 lines so it actually builds
 # make build-srv || exit $?
 # cd components/dredd-rpc && cargo build
 popd
@@ -17,7 +19,7 @@ mkdir -p $dir $key_dir
 
 # This will produce a URI that looks like
 # postgresql://hab@127.0.0.1:39605/test
-pg=$(su -c "pg_tmp -t -w 120 -o \"-c max_locks_per_transaction=128\"" hab)
+pg=$(su -c "pg_tmp -t -w 240 -o \"-c max_locks_per_transaction=128\"" hab)
 port=$(echo "$pg" | awk -F ":" '{ print $3 }' | awk -F "/" '{ print $1 }')
 
 # Write out some config files
@@ -49,7 +51,7 @@ database = "test"
 connection_retry_ms = 300
 connection_timeout_sec = 3600
 connection_test = false
-pool_size = 1
+pool_size = 8
 EOF
 
 cat << EOF > $dir/config_sessionsrv.toml
@@ -69,7 +71,7 @@ database = "test"
 connection_retry_ms = 300
 connection_timeout_sec = 3600
 connection_test = false
-pool_size = 1
+pool_size = 8
 EOF
 
 cat << EOF > $dir/config_worker.toml
@@ -91,7 +93,7 @@ database = "test"
 connection_retry_ms = 300
 connection_timeout_sec = 3600
 connection_test = false
-pool_size = 1
+pool_size = 8
 EOF
 
 cat << EOF > $dir/Procfile
@@ -106,7 +108,7 @@ EOF
 # Probably need to generate a box key pair at some point
 
 # Start all the services up
-$base_dir/support/linux/bin/forego start -f "$dir/Procfile" -e "$base_dir/support/bldr.env" 2>&1 > "$dir/services.log" &
+env HAB_FUNC_TEST=1 $base_dir/support/linux/bin/forego start -f "$dir/Procfile" -e "$base_dir/support/bldr.env" 2>&1 > "$dir/services.log" &
 forego_pid=$!
 
 echo "**** Spinning up the services ****"

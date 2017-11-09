@@ -204,7 +204,7 @@ fn start(ui: &mut UI) -> Result<()> {
                 ("key", Some(m)) => {
                     match m.subcommand() {
                         ("generate", Some(sc)) => sub_service_key_generate(ui, sc)?,
-                        _ => unreachable!()
+                        _ => unreachable!(),
                     }
                 }
                 ("start", _) => command::launcher::start(ui, env::args_os().skip(2).collect())?,

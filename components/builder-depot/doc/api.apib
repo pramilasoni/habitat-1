@@ -4,37 +4,37 @@ FORMAT: 1A
 
 ## Origins [/v1/depot/origins]
 
-+ Attributes (object)
-  + id: 123456 (string, required)
-  + name: lulz (string, required)
-  + owner_id: 456789 (string)
-  + private_key_name: haha (string)
-  + default_package_visibility: public (string)
+* Attributes (object)
+  * id: 123456 (string, required)
+  * name: lulz (string, required)
+  * owner_id: 456789 (string)
+  * private_key_name: haha (string)
+  * default_package_visibility: public (string)
 
 ### Create an Origin [POST]
 
-+ Attributes (object)
-  + name: lulz (string, required)
+* Attributes (object)
+  * name: lulz (string, required)
 
-+ Request (application/json)
-  + Headers
+* Request (application/json)
+  * Headers
 
             Accept: application/json
             Authorization: Bearer bobo
 
-+ Response 201 (application/json)
-  + Attributes (Origins)
+* Response 201 (application/json)
+  * Attributes (Origins)
 
 ## Origin [/v1/depot/origins/{name}]
 Origins are rad.
 
-+ Parameters
-  + name: `lulz` (string)
+* Parameters
+  * name: `lulz` (string)
 
 ### Retrieve an Origin [GET]
 
-+ Request (application/json)
+* Request (application/json)
 
-+ Response 200 (application/json)
-  + Attributes (Origins)
+* Response 200 (application/json)
+  * Attributes (Origins)
 
